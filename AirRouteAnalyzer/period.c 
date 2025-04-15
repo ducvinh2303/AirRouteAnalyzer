@@ -1,0 +1,103 @@
+// KIT107 Assignment 2
+/*
+ * Implementation for the Period ADT
+ * Author <<Duc Vinh Vu - 641029>>
+ * Version <<20/9/23>>
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "period.h"
+
+
+/* Types */
+
+struct period_int
+{
+    period_format first_route; // Pointer to the first route in this period
+};
+
+
+/* Functions */
+
+/*
+* 'Constructor' for periods
+* Param pp pointer to periods being constructed
+*/
+void init_period(period *pp)
+{
+    // Allocate memory for the period structure
+    *pp = (period)malloc(sizeof(struct period_int));
+    // Initialize the first_route field to NULL (empty list)
+    (*pp)->first_route = NULL;
+}
+
+/*
+* Getter for first_route
+* Param p periods variable to examine
+* Return first_route field
+*/
+period_format get_routes(period p)
+{
+    // Return the pointer to the first route in the period
+    return p->first_route;
+}
+
+/*
+* Setter for first_route
+* Param p periods variable to update
+* Param f value to be placed into the period's first_route field
+*/
+void set_routes(period p, period_format f)
+{
+    // Set the first_route field to the provided value
+    p->first_route = f;
+}
+
+/*
+* Doer function to add a route to a year
+* Param d period variable to update
+* Param r route value to be added into the periods of the appropriate year in alphabetical order
+*/
+void add_route_to_period(period p, route r)
+{
+    // Create a new node to contain the route
+    period_format new_node = (period_format)malloc(sizeof(struct node_int));
+    if (new_node == NULL) {
+        fprintf(stderr, "Error allocating memory for new node.\n");
+        exit(1);
+    }
+    
+    // Set the route data to the new node
+    set_data(new_node, r);
+    set_next(new_node, NULL);
+    
+    // If the period has no routes yet, add this as the first route
+    if (p->first_route == NULL) {
+        p->first_route = new_node;
+        return;
+    }
+    
+    // Insert the route in alphabetical order by description
+    period_format current = p->first_route;
+    period_format previous = NULL;
+    
+    // Find the correct position to insert the new route based on description
+    while (current != NULL && 
+           strcmp(get_description(get_data(current)), get_description(r)) < 0) {
+        previous = current;
+        current = get_next(current);
+    }
+    
+    // Insert the new node at the appropriate position
+    if (previous == NULL) {
+        // Insert at the beginning
+        set_next(new_node, p->first_route);
+        p->first_route = new_node;
+    } else {
+        // Insert in the middle or at the end
+        set_next(new_node, current);
+        set_next(previous, new_node);
+    }
+}
